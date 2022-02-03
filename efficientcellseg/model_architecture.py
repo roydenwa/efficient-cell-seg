@@ -7,12 +7,12 @@ from tensorflow.keras.applications import EfficientNetB5
 
 
 def create_efficient_cell_seg(img_h: int = None, img_w: int = None, inner_h: int = 384,
-                              inner_w: int = 384, transfer_learning: bool = True) -> keras.Model:
+                              inner_w: int = 384, imagenet_weights: bool = True) -> keras.Model:
     input = keras.Input(shape=(img_h, img_w, 3), name="input_img", dtype=tf.float32)
     input_resized = layers.Resizing(inner_h, inner_w, interpolation="bilinear",
                                     crop_to_aspect_ratio=False, name="input_resized")(input)
     # Encoder/ backbone:
-    if transfer_learning:
+    if imagenet_weights:
         encoder = EfficientNetB5(input_tensor=input_resized, weights="imagenet", include_top=False)
     else:
         encoder = EfficientNetB5(input_tensor=input_resized, include_top=False)
