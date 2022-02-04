@@ -7,7 +7,8 @@ from tensorflow.keras.applications import EfficientNetB5
 
 
 def create_efficient_cell_seg(img_h: int = None, img_w: int = None, inner_h: int = 384,
-                              inner_w: int = 384, imagenet_weights: bool = True) -> keras.Model:
+                              inner_w: int = 384, imagenet_weights: bool = True,
+                              num_filters_decoder: list = [64, 48, 32, 16]) -> keras.Model:
     input = keras.Input(shape=(img_h, img_w, 3), name="input_img", dtype=tf.float32)
     input_resized = layers.Resizing(inner_h, inner_w, interpolation="bilinear",
                                     crop_to_aspect_ratio=False, name="input_resized")(input)
@@ -26,7 +27,6 @@ def create_efficient_cell_seg(img_h: int = None, img_w: int = None, inner_h: int
                         "en_block4a_expand_activation"]
 
     # Decoder:
-    num_filters_decoder = [64, 48, 32, 16]
     x = encoder_output
 
     for idx, (skip_conn, num) in enumerate(zip(reversed(skip_connections),
