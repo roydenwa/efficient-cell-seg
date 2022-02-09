@@ -22,7 +22,7 @@ def apply_clahe_filter(img: np.ndarray, clip_limit: float = 10.0,
 
 
 def context_aware_pcolor(img_3D: np.ndarray, z: int, thresh: float = 0.2,
-                         adjacent_mean: float = 0.03,
+                         adjacent_mean: float = 0.03, blur_adjacent: bool = True,
                          norm_per_channel: bool = True) -> np.ndarray:
     """
     Apply Context Aware Pseudocoloring as preprocessing step.
@@ -44,8 +44,10 @@ def context_aware_pcolor(img_3D: np.ndarray, z: int, thresh: float = 0.2,
     p_red = normalize(p_red)
     p_green = normalize(img_3D[z])
     p_blue = normalize(p_blue)
-    p_red = cv2.blur(p_red, (8, 8))
-    p_blue = cv2.blur(p_blue, (8, 8))
+
+    if blur_adjacent:
+        p_red = cv2.blur(p_red, (8, 8))
+        p_blue = cv2.blur(p_blue, (8, 8))
 
     p_red_thresh = np.zeros(p_red.shape)
     p_blue_thresh = np.zeros(p_blue.shape)
