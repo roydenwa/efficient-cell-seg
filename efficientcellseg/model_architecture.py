@@ -9,8 +9,9 @@ from tensorflow.keras.applications import EfficientNetB5
 def create_efficient_cell_seg(img_h: int = None, img_w: int = None, inner_h: int = 384,
                               inner_w: int = 384, imagenet_weights: bool = True,
                               num_filters_decoder: list = [64, 48, 32, 16]) -> keras.Model:
-    """Returns an EfficientCellSeg model, resizing of in- and outputs is part of the model,
-       if img_h and img_w are None the resizing is done dynamically.
+    """
+    Returns an EfficientCellSeg model, resizing of in- and outputs is part of the model,
+    if img_h and img_w are None the resizing is done dynamically.
     """
     input = keras.Input(shape=(img_h, img_w, 3), name="input_img", dtype=tf.float32)
     input_resized = layers.Resizing(inner_h, inner_w, interpolation="bilinear",
