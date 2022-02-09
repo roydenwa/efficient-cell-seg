@@ -28,7 +28,6 @@ def context_aware_pcolor(img_3D: np.ndarray, z: int, thresh: float = 0.2,
     adjacent_mean is an estimation of the percentage of cell pixels per
     slice and used to adapt the threshold for slices with low contrast.
     """
-    # TODO: Doc string explaining adaptive thresholding and adjacent_mean
     if z == 0:
         adjacent_slc1 = np.zeros((img_3D.shape[1], img_3D.shape[2]))
     else:
