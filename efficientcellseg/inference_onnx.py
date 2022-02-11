@@ -5,7 +5,7 @@ from skimage import io
 from scipy import ndimage as ndi
 from skimage.segmentation import watershed
 from skimage.feature import peak_local_max
-from context_aware_pseudocoloring import context_aware_pcolor
+from efficientcellseg.context_aware_pseudocoloring import context_aware_pcolor
 
 
 def basic_labeling(img: np.ndarray) -> np.ndarray:
