@@ -28,6 +28,11 @@ def context_aware_pcolor(img_3D: np.ndarray, z: int, thresh: float = 0.2,
     Apply Context Aware Pseudocoloring as preprocessing step.
     adjacent_mean is an estimation of the percentage of cell pixels per
     slice and used to adapt the threshold for slices with low contrast.
+    If norm_per_cannel is False, cells in the previous slice are highlighted in red
+    and cells in the next slice are highlighted in blue.
+    If norm_per_channel is True, cells in adjacent slices are highlighted in the red
+    and blue channel, but the intensity of the red and blue channel is lower compared
+    to the green channel and thus the pseudocolor image looks greenish in most cases.
     """
     if z == 0:
         adjacent_slc1 = np.zeros((img_3D.shape[1], img_3D.shape[2]))
