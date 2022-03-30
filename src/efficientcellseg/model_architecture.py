@@ -35,13 +35,13 @@ class EfficientCellSeg(models.Model):
 
     def call(self, img):
         x = self.encoder(img)
+
         x = self.get("up1", layers.UpSampling2D, interpolation="bilinear")(x)
         skip1 = self.encoder.get_layer(self.skip_connections[-1]).output
         x = self.get("concat1", layers.Concatenate)([x, skip1])
         x = self.get("conv1.1", layers.Conv2D, filters=64, kernel_size=3, padding="same")(x)
         x = self.get("bn1.1", layers.BatchNormalization)(x)
         x = self.get("relu1.1", layers.Activation, "relu")(x)
-
         x = self.get("conv1.2", layers.Conv2D, filters=64, kernel_size=3, padding="same")(x)
         x = self.get("bn1.2", layers.BatchNormalization)(x)
         x = self.get("relu1.2", layers.Activation, "relu")(x)
@@ -52,7 +52,6 @@ class EfficientCellSeg(models.Model):
         x = self.get("conv2.1", layers.Conv2D, filters=48, kernel_size=3, padding="same")(x)
         x = self.get("bn2.1", layers.BatchNormalization)(x)
         x = self.get("relu2.1", layers.Activation, "relu")(x)
-
         x = self.get("conv2.2", layers.Conv2D, filters=48, kernel_size=3, padding="same")(x)
         x = self.get("bn2.2", layers.BatchNormalization)(x)
         x = self.get("relu2.2", layers.Activation, "relu")(x)
@@ -63,7 +62,6 @@ class EfficientCellSeg(models.Model):
         x = self.get("conv3.1", layers.Conv2D, filters=48, kernel_size=3, padding="same")(x)
         x = self.get("bn3.1", layers.BatchNormalization)(x)
         x = self.get("relu3.1", layers.Activation, "relu")(x)
-
         x = self.get("conv3.2", layers.Conv2D, filters=48, kernel_size=3, padding="same")(x)
         x = self.get("bn3.2", layers.BatchNormalization)(x)
         x = self.get("relu3.2", layers.Activation, "relu")(x)
@@ -74,7 +72,6 @@ class EfficientCellSeg(models.Model):
         x = self.get("conv4.1", layers.Conv2D, filters=48, kernel_size=3, padding="same")(x)
         x = self.get("bn4.1", layers.BatchNormalization)(x)
         x = self.get("relu4.1", layers.Activation, "relu")(x)
-
         x = self.get("conv4.2", layers.Conv2D, filters=48, kernel_size=3, padding="same")(x)
         x = self.get("bn4.2", layers.BatchNormalization)(x)
         x = self.get("relu4.2", layers.Activation, "relu")(x)
