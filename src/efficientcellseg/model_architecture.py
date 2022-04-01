@@ -8,7 +8,7 @@ from tensorflow.keras.applications import EfficientNetB5
 
 class EfficientCellSeg(models.Model):
     def __init__(self, input_shape):
-        super().__init__(self)
+        super(EfficientCellSeg, self).__init__()
         self._layers = {}
         self.input_layer = layers.Input(input_shape, name="input_resized")
         self.backbone = EfficientNetB5(
