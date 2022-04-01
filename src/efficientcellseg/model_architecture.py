@@ -29,13 +29,13 @@ class EfficientCellSeg(models.Model):
             "block4a_expand_activation"
         ]
 
-    def get(self, name: str, ctor: Callable[..., Any], *args, **kwargs):
+    def get(self, name: str, ctor: Callable[..., Any], *args, **kwargs) -> layers.Layer:
         """Helper func to skip initializing layers in the init method."""
         if name not in self._layers:
             self._layers[name] = ctor(*args, **kwargs)
         return self._layers[name]
 
-    def call(self, img: np.ndarray):
+    def call(self, img: np.ndarray) -> np.ndarray:
         x = self.encoder(img)
 
         x = self.get("up1", layers.UpSampling2D, interpolation="bilinear")(x)
