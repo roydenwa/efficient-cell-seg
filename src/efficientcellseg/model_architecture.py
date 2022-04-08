@@ -64,12 +64,10 @@ class ConvBlock(layers.Layer):
         self._layers = {}
 
     def call(self, x: tf.Tensor) -> tf.Tensor:
-        x = self.get("conv1", layers.Conv2D, filters=self.filters,
-                     kernel_size=3, padding="same")(x)
+        x = self.get("conv1", layers.Conv2D, filters=self.filters, kernel_size=3, padding="same")(x)
         x = self.get("bn1", layers.BatchNormalization)(x)
         x = self.get("relu1", layers.Activation, "relu")(x)
-        x = self.get("conv2", layers.Conv2D, filters=self.filters,
-                     kernel_size=3, padding="same")(x)
+        x = self.get("conv2", layers.Conv2D, filters=self.filters, kernel_size=3, padding="same")(x)
         x = self.get("bn2", layers.BatchNormalization)(x)
         x = self.get("relu2", layers.Activation, "relu")(x)
 
