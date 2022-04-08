@@ -1,7 +1,6 @@
 import numpy as np
 import tensorflow as tf
 
-from tensorflow import keras
 from tensorflow.keras import layers, models
 from tensorflow.keras.applications import EfficientNetB5
 
@@ -99,7 +98,7 @@ def create_efficient_cell_seg(img_h: int = None, img_w: int = None, inner_h: int
     Returns an EfficientCellSeg model. The resizing of the inputs and outputs is part
     of the model, if img_h and img_w are None, resizing is done dynamically.
     """
-    input = keras.Input(shape=(img_h, img_w, 3), name="input_img", dtype=tf.float32)
+    input = layers.Input(shape=(img_h, img_w, 3), name="input_img", dtype=tf.float32)
     input_resized = layers.Resizing(inner_h, inner_w, interpolation="bilinear",
                                     crop_to_aspect_ratio=False, name="input_resized")(input)
     # Encoder/ backbone:
@@ -137,6 +136,6 @@ def create_efficient_cell_seg(img_h: int = None, img_w: int = None, inner_h: int
     decoder_output = layers.Activation("sigmoid")(x)
     decoder_output = tf.image.resize(decoder_output, tf.shape(input)[1:3])
 
-    model = keras.Model(inputs=input, outputs=decoder_output)
+    model = models.Model(inputs=input, outputs=decoder_output)
 
     return model
