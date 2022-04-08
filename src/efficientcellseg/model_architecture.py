@@ -8,6 +8,17 @@ from tensorflow.keras.applications import EfficientNetB5
 from typing import Tuple, Callable, Any
 
 
+def compact_get(module: tf.Module) -> tf.Module:
+    def get(self, name: str, constructor: Callable[..., Any], *args, **kwargs) -> layers.Layer:
+        """Helper func to skip initializing layers in the init method."""
+        if name not in self._layers:
+            self._layers[name] = constructor(*args, **kwargs, name=name)
+        return self._layers[name]
+
+    setattr(module, "get", get)
+    return module
+
+
 @compact_get
 class EfficientCellSeg(models.Model):
     def __init__(
@@ -79,17 +90,6 @@ class DynamicResizing(layers.Layer):
     def call(self, x: tf.Tensor, height: int, width: int) -> tf.Tensor:
         x = tf.image.resize(x, size=(height, width))
         return x
-
-
-def compact_get(module: tf.Module) -> tf.Module:
-    def get(self, name: str, constructor: Callable[..., Any], *args, **kwargs) -> layers.Layer:
-        """Helper func to skip initializing layers in the init method."""
-        if name not in self._layers:
-            self._layers[name] = constructor(*args, **kwargs, name=name)
-        return self._layers[name]
-
-    setattr(module, "get", get)
-    return module
 
 
 def create_efficient_cell_seg(img_h: int = None, img_w: int = None, inner_h: int = 384,
