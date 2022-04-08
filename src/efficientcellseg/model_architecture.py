@@ -1,9 +1,7 @@
-import numpy as np
 import tensorflow as tf
 
 from tensorflow.keras import layers, models
 from tensorflow.keras.applications import EfficientNetB5
-
 from typing import Tuple, Callable, Any
 
 
