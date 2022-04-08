@@ -8,80 +8,88 @@ from tensorflow.keras.applications import EfficientNetB5
 from typing import Tuple, Callable, Any
 
 
+@compact_get
 class EfficientCellSeg(models.Model):
-    def __init__(self, input_shape: Tuple[int, int, int]):
+    def __init__(
+        self,
+        input_shape: Tuple[int, int, int] = (384, 384, 3),
+        filters_decoder: Tuple[int, int, int, int] = (64, 48, 32, 16)
+    ):
         super(EfficientCellSeg, self).__init__()
         self._layers = {}
-        self.input_layer = layers.Input(input_shape, name="input_resized")
-        self.backbone = EfficientNetB5(
-            input_tensor=self.input_layer,
+        input_layer = layers.Input(input_shape, name="input_resized")
+        backbone = EfficientNetB5(
+            input_tensor=input_layer,
             weights="imagenet",
             include_top=False
         )
         self.encoder = models.Model(
-            inputs=self.backbone.input,
-            outputs=self.backbone.get_layer("block6a_expand_activation").output
+            inputs=backbone.input,
+            outputs=[
+                backbone.get_layer("input_resized").output,
+                backbone.get_layer("block1a_activation").output,
+                backbone.get_layer("block3a_expand_activation").output,
+                backbone.get_layer("block4a_expand_activation").output,
+                backbone.get_layer("block6a_expand_activation").output
+            ],
+            name="encoder"
         )
-        self.skip_connections = [
-            "input_resized",
-            "block1a_activation",
-            "block3a_expand_activation",
-            "block4a_expand_activation"
-        ]
-
-    def get(self, name: str, ctor: Callable[..., Any], *args, **kwargs) -> layers.Layer:
-        """Helper func to skip initializing layers in the init method."""
-        if name not in self._layers:
-            self._layers[name] = ctor(*args, **kwargs)
-        return self._layers[name]
+        self.filters_decoder = filters_decoder
 
     def call(self, img: np.ndarray) -> np.ndarray:
-        x = self.encoder(img)
+        x = self.get("resize_input", layers.Resizing, 384, 384)(img)
+        *skips, x = self.encoder(x)
 
-        x = self.get("up1", layers.UpSampling2D, interpolation="bilinear")(x)
-        skip1 = self.encoder.get_layer(self.skip_connections[-1]).output
-        x = self.get("concat1", layers.Concatenate)([x, skip1])
-        x = self.get("conv1.1", layers.Conv2D, filters=64, kernel_size=3, padding="same")(x)
-        x = self.get("bn1.1", layers.BatchNormalization)(x)
-        x = self.get("relu1.1", layers.Activation, "relu")(x)
-        x = self.get("conv1.2", layers.Conv2D, filters=64, kernel_size=3, padding="same")(x)
-        x = self.get("bn1.2", layers.BatchNormalization)(x)
-        x = self.get("relu1.2", layers.Activation, "relu")(x)
-
-        x = self.get("up2", layers.UpSampling2D, interpolation="bilinear")(x)
-        skip2 = self.encoder.get_layer(self.skip_connections[2]).output
-        x = self.get("concat2", layers.Concatenate)([x, skip2])
-        x = self.get("conv2.1", layers.Conv2D, filters=48, kernel_size=3, padding="same")(x)
-        x = self.get("bn2.1", layers.BatchNormalization)(x)
-        x = self.get("relu2.1", layers.Activation, "relu")(x)
-        x = self.get("conv2.2", layers.Conv2D, filters=48, kernel_size=3, padding="same")(x)
-        x = self.get("bn2.2", layers.BatchNormalization)(x)
-        x = self.get("relu2.2", layers.Activation, "relu")(x)
-
-        x = self.get("up3", layers.UpSampling2D, interpolation="bilinear")(x)
-        skip3 = self.encoder.get_layer(self.skip_connections[1]).output
-        x = self.get("concat3", layers.Concatenate)([x, skip3])
-        x = self.get("conv3.1", layers.Conv2D, filters=32, kernel_size=3, padding="same")(x)
-        x = self.get("bn3.1", layers.BatchNormalization)(x)
-        x = self.get("relu3.1", layers.Activation, "relu")(x)
-        x = self.get("conv3.2", layers.Conv2D, filters=32, kernel_size=3, padding="same")(x)
-        x = self.get("bn3.2", layers.BatchNormalization)(x)
-        x = self.get("relu3.2", layers.Activation, "relu")(x)
-
-        x = self.get("up4", layers.UpSampling2D, interpolation="bilinear")(x)
-        skip4 = self.encoder.get_layer(self.skip_connections[0]).output
-        x = self.get("concat4", layers.Concatenate)([x, skip4])
-        x = self.get("conv4.1", layers.Conv2D, filters=16, kernel_size=3, padding="same")(x)
-        x = self.get("bn4.1", layers.BatchNormalization)(x)
-        x = self.get("relu4.1", layers.Activation, "relu")(x)
-        x = self.get("conv4.2", layers.Conv2D, filters=16, kernel_size=3, padding="same")(x)
-        x = self.get("bn4.2", layers.BatchNormalization)(x)
-        x = self.get("relu4.2", layers.Activation, "relu")(x)
+        for i in range(1, 5):
+            x = self.get(f"up{i}", layers.UpSampling2D, interpolation="bilinear")(x)
+            x = self.get(f"concat{i}", layers.Concatenate)([x, skips[-i]])
+            x = self.get(f"conv_block{i}", ConvBlock, filters=self.filters_decoder[i - 1])(x)
 
         x = self.get("conv_last", layers.Conv2D, filters=1, kernel_size=1, padding="same")(x)
         x = self.get("sigmoid", layers.Activation, "sigmoid")(x)
+        x = self.get("resize_output", DynamicResizing)(x, img.shape[1], img.shape[2])
 
         return x
+
+
+@compact_get
+class ConvBlock(layers.Layer):
+    def __init__(self, filters: int, **kwargs):
+        super(ConvBlock, self).__init__(**kwargs)
+        self.filters = filters
+        self._layers = {}
+
+    def call(self, x: tf.Tensor) -> tf.Tensor:
+        x = self.get("conv1", layers.Conv2D, filters=self.filters,
+                     kernel_size=3, padding="same")(x)
+        x = self.get("bn1", layers.BatchNormalization)(x)
+        x = self.get("relu1", layers.Activation, "relu")(x)
+        x = self.get("conv2", layers.Conv2D, filters=self.filters,
+                     kernel_size=3, padding="same")(x)
+        x = self.get("bn2", layers.BatchNormalization)(x)
+        x = self.get("relu2", layers.Activation, "relu")(x)
+
+        return x
+
+
+class DynamicResizing(layers.Layer):
+    def __init__(self, **kwargs):
+        super(DynamicResizing, self).__init__(**kwargs)
+
+    def call(self, x: tf.Tensor, height: int, width: int) -> tf.Tensor:
+        x = tf.image.resize(x, size=(height, width))
+        return x
+
+
+def compact_get(module: tf.Module) -> tf.Module:
+    def get(self, name: str, constructor: Callable[..., Any], *args, **kwargs) -> layers.Layer:
+        """Helper func to skip initializing layers in the init method."""
+        if name not in self._layers:
+            self._layers[name] = constructor(*args, **kwargs, name=name)
+        return self._layers[name]
+
+    setattr(module, "get", get)
+    return module
 
 
 def create_efficient_cell_seg(img_h: int = None, img_w: int = None, inner_h: int = 384,
