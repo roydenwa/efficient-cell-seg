@@ -18,14 +18,10 @@ def compact_get(module: tf.Module) -> tf.Module:
 
 @compact_get
 class EfficientCellSeg(models.Model):
-    def __init__(
-        self,
-        input_shape: Tuple[int, int, int] = (384, 384, 3),
-        filters_decoder: Tuple[int, int, int, int] = (64, 48, 32, 16)
-    ):
+    def __init__(self, filters_decoder: Tuple[int, int, int, int] = (64, 48, 32, 16)):
         super(EfficientCellSeg, self).__init__()
         self._layers = {}
-        input_layer = layers.Input(input_shape, name="input_resized")
+        input_layer = layers.Input((384, 384, 3), name="input_resized")
         backbone = EfficientNetB5(
             input_tensor=input_layer,
             weights="imagenet",
