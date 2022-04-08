@@ -47,7 +47,7 @@ class EfficientCellSeg(models.Model):
         )
         self.filters_decoder = filters_decoder
 
-    def call(self, img: np.ndarray) -> np.ndarray:
+    def call(self, img: tf.Tensor) -> tf.Tensor:
         x = self.get("resize_input", layers.Resizing, 384, 384)(img)
         *skips, x = self.encoder(x)
 
