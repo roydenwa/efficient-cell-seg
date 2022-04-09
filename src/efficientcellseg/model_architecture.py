@@ -5,22 +5,32 @@ from tensorflow.keras.applications import EfficientNetB5
 from typing import Tuple, Callable, Any
 
 
-def compact_get(module: tf.Module) -> tf.Module:
+def compact_get_layers(module: tf.Module) -> tf.Module:
+    """
+    Add a _layers dict and a get method to make tf modules more compact
+    by initializing layers on the fly.
+    """
+    base_init = module.__init__
+
+    def __init__(self, *args, **kwargs):
+        base_init(self, *args, **kwargs)
+        self._layers = {}
+
     def get(self, name: str, constructor: Callable[..., Any], *args, **kwargs) -> layers.Layer:
-        """Helper func to skip initializing layers in the init method."""
         if name not in self._layers:
             self._layers[name] = constructor(*args, **kwargs, name=name)
         return self._layers[name]
 
+    setattr(module, "__init__", __init__)
     setattr(module, "get", get)
+
     return module
 
 
-@compact_get
+@compact_get_layers
 class EfficientCellSeg(models.Model):
     def __init__(self, filters_decoder: Tuple[int, int, int, int] = (64, 48, 32, 16)):
         super(EfficientCellSeg, self).__init__()
-        self._layers = {}
         input_layer = layers.Input((384, 384, 3), name="input_resized")
         backbone = EfficientNetB5(
             input_tensor=input_layer,
@@ -56,12 +66,11 @@ class EfficientCellSeg(models.Model):
         return x
 
 
-@compact_get
+@compact_get_layers
 class ConvBlock(layers.Layer):
     def __init__(self, filters: int, **kwargs):
         super(ConvBlock, self).__init__(**kwargs)
         self.filters = filters
-        self._layers = {}
 
     def call(self, x: tf.Tensor) -> tf.Tensor:
         x = self.get("conv1", layers.Conv2D, filters=self.filters, kernel_size=3, padding="same")(x)
