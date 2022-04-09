@@ -1,3 +1,3 @@
-from efficientcellseg.model_architecture import create_efficient_cell_seg
+from efficientcellseg.model_architecture import create_efficient_cell_seg, compact_get_layers, EfficientCellSeg, DynamicResizing, ConvBlock
 from efficientcellseg.context_aware_pseudocoloring import context_aware_pcolor
 from efficientcellseg.inference_onnx import inference_2D, inference_3D
