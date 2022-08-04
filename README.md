@@ -1,10 +1,11 @@
 # EfficientCellSeg
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/19abichcVaeAlbbojcaLUh5c_rCu8pYIL?usp=sharing)
 
-Official implementation of - [EfficientCellSeg: Efficient Volumetric Cell Segmentation Using Context Aware Pseudocoloring](https://openreview.net/forum?id=KnJsGdhx1kH). Accepted at MIDL 2022.
-
-**Inference colab notebook:** [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/19abichcVaeAlbbojcaLUh5c_rCu8pYIL?usp=sharing)
+Efficient encoder-decoder model for cell segmentation in 3D microscopy images. 
+3D microscopy images are analyzed slice-wise as stack of 2D slices.
+Context from adjacent 2D slices is encoded using our pseudocoloring algorithm (see below). 
   
-**Results in the Cell Segmentation Benchmark:**
+## Results in the [Cell Segmentation Benchmark](http://celltrackingchallenge.net/latest-csb-results):
 <table>
   <thead>
     <tr>
@@ -68,17 +69,19 @@ Official implementation of - [EfficientCellSeg: Efficient Volumetric Cell Segmen
 *Rankings as of 16.04.2022
 <br></br>
 
-**Example results of our segmentation method for 2D slices of 3D microscopy images:**
-
+## Example results of our segmentation method for 2D slices of 3D microscopy images:
 ![Example results](assets/example_2Dslices.png?raw=true "Example Results")
 
-**(Spatial-) Context Aware Pseudocoloring:**
-
+## (Spatial-) Context Aware Pseudocoloring:
 ![Context Aware Pseudocoloring](assets/context_aware_pcolor.png?raw=true "Context Aware Pseudocoloring")
 
-**BibTeX:**
+## Conference Paper
+> [EfficientCellSeg: Efficient Volumetric Cell Segmentation Using Context Aware Pseudocoloring](https://openreview.net/forum?id=KnJsGdhx1kH),
+> Wagner, Royden and Rohr, Karl,
+> *MIDL 2022*; *arXiv ([arXiv:2204.03014](https://arxiv.org/abs/2204.03014))*
 
-```
+## Citation
+```bibtex
 @inproceedings{
   wagner2022efficientcellseg,
   title={EfficientCellSeg: Efficient Volumetric Cell Segmentation Using Context Aware Pseudocoloring},
