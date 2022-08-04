@@ -82,8 +82,7 @@ Context from adjacent 2D slices is encoded using our pseudocoloring algorithm (s
 
 ## Citation
 ```bibtex
-@inproceedings{
-  wagner2022efficientcellseg,
+@inproceedings{wagner2022efficientcellseg,
   title={EfficientCellSeg: Efficient Volumetric Cell Segmentation Using Context Aware Pseudocoloring},
   author={Royden Wagner and Karl Rohr},
   booktitle={Medical Imaging with Deep Learning},
