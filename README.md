@@ -2,7 +2,7 @@
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/19abichcVaeAlbbojcaLUh5c_rCu8pYIL?usp=sharing)
 
 Efficient encoder-decoder model for cell segmentation in 3D microscopy images. 
-3D microscopy images are analyzed slice-wise as stack of 2D slices.
+3D microscopy images are analyzed slice-wise as stacks of 2D slices.
 Context from adjacent 2D slices is encoded using our pseudocoloring algorithm (see below). 
   
 ## Results in the [Cell Segmentation Benchmark](http://celltrackingchallenge.net/latest-csb-results):
