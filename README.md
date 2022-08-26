@@ -74,6 +74,9 @@ Context from adjacent 2D slices is encoded using our pseudocoloring algorithm (s
 
 ## (Spatial-) Context Aware Pseudocoloring:
 ![Context Aware Pseudocoloring](assets/context_aware_pcolor.png?raw=true "Context Aware Pseudocoloring")
+Context from adjacent layers - an approximation of regions where cells might be located - is determined by CLAHE filtering and thresholding.
+Aterwards, these regions are highlighted in the current z-slice via a multiply-accumulate operation.
+Context from the previous z-slice (z - 1) is highlighted in the red channel, context from the next z-slice (z + 1) in the blue channel.
 
 ## Conference Paper
 > [EfficientCellSeg: Efficient Volumetric Cell Segmentation Using Context Aware Pseudocoloring](https://openreview.net/forum?id=KnJsGdhx1kH),
